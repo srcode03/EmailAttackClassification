@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block body %}
+<h1>Emails</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Sr. No</th>
+            <th>Email ID</th>
+            <th>No. of Reports</th>
+            <th>Is Spam?</th>
+            <th>Confidence Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for email in emails %}
+        <tr>
+            <td>{{ email[0] }}</td>
+            <td>{{ email[1] }}</td>
+            <td>{{ email[2] }}</td>
+            <td>{{ email[3] }}</td>
+            <td>{{ email[4] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
