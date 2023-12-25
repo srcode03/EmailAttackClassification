@@ -3,7 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
     <style>
       /* Global styles */
       body {
@@ -13,23 +18,25 @@
         margin: 0;
         padding: 0;
       }
-    
+      .navbar {
+        margin-bottom: 20px; /* Add padding bottom as needed */
+      }
       .container {
         max-width: 800px;
         margin: 0 auto;
-        padding: 20px;
+        padding: 10px;
         background-color: #fff;
         border-radius: 10px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
         margin-bottom: 20px; /* Add margin-bottom for spacing between containers */
       }
-    
+
       /* Form styles */
       label {
         font-weight: bold;
         margin-bottom: 5px;
       }
-    
+
       input[type="text"],
       textarea {
         padding: 10px;
@@ -41,7 +48,7 @@
         margin-bottom: 20px;
         height: 100px;
       }
-    
+
       input[type="email"] {
         padding: 10px;
         border-radius: 5px;
@@ -51,7 +58,7 @@
         width: 100%;
         margin-bottom: 20px;
       }
-    
+
       button[type="submit"] {
         padding: 10px 20px;
         border-radius: 5px;
@@ -62,24 +69,52 @@
         cursor: pointer;
         transition: all 0.3s ease;
       }
-    
+
       button[type="submit"]:hover {
         background-color: #22313f;
       }
+
       #phishing-id-input input[type="text"] {
-    padding: 10px;
-    border-radius: 5px;
-    border-color: #22313f;
-    border: none;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    margin-bottom: 20px;
-    height: 40px; /* Adjust the height as needed */
-  }
+        padding: 10px;
+        border-radius: 5px;
+        border-color: #22313f;
+        border: none;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        margin-bottom: 20px;
+        height: 40px; /* Adjust the height as needed */
+      }
     </style>
     <title>Attack Classifier</title>
   </head>
   <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <p class="navbar-brand" href="#">EmailAttackProtector</p>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/flask-frontend/home.html"
+              >Home <span class="sr-only"></span
+            ></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/flask-frontend/about.html">About Us</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
     <div class="container">
       <h1>Enter email details to detect if spam</h1>
       <form id="spam-form">
@@ -105,55 +140,53 @@
       </form>
     </div>
     <script>
-    const spamform = document.getElementById("spam-form");
-    spamform.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const emailId = document.getElementById("email-id").value.toLowerCase();
-      const emailContent = document.getElementById("email-content").value.toLowerCase();
-      const response = await fetch("http://localhost:5000/email", {
-        method: "POST",
-        body: JSON.stringify({ emailId, content: emailContent }),
-        headers: { "Content-Type": "application/json" },
+      const spamform = document.getElementById("spam-form");
+      spamform.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const emailId = document.getElementById("email-id").value.toLowerCase();
+        const emailContent = document
+          .getElementById("email-content")
+          .value.toLowerCase();
+        const response = await fetch("http://localhost:5000/email", {
+          method: "POST",
+          body: JSON.stringify({ emailId, content: emailContent }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const result = await response.json();
+
+        if (result.isSpam === 1) {
+          Swal.fire(
+            "Spam Clasified",
+            `This email is spam! Number of reports: ${result.no_of_reports}`,
+            "info"
+          );
+        } else {
+          Swal.fire(
+            "Not a Spam",
+            `This email is not a spam! Number of reports: ${result.no_of_reports}`,
+            "info"
+          );
+        }
       });
+      const phishingform = document.getElementById("phishing-form");
+      phishingform.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-      const result = await response.json();
+        const urlContent = document.getElementById("phishing-id").value;
+        console.log(JSON.stringify({ url: urlContent }));
 
-      if (result.isSpam === 1) {
-        Swal.fire(
-          'Spam Clasified',
-          `This email is spam! Number of reports: ${result.no_of_reports}`,
-          'info'
-        )
-      } 
-      else {
-        Swal.fire(
-          'Not a Spam',
-          `This email is not a spam! Number of reports: ${result.no_of_reports}`,
-          'info'
-        )
-      }
-    });
-    const phishingform=document.getElementById("phishing-form")
-    phishingform.addEventListener("submit",async(event)=>{
-      event.preventDefault();
-        
-      const urlContent = document.getElementById("phishing-id").value;
-      console.log(JSON.stringify({ url: urlContent }));
+        const response = await fetch("http://localhost:5000/phishing", {
+          method: "POST",
+          body: JSON.stringify({ url: urlContent }),
+          headers: { "Content-Type": "application/json" },
+        });
 
-      const response = await fetch("http://localhost:5000/phishing", {
-        method: "POST",
-        body: JSON.stringify({url: urlContent }),
-        headers: { "Content-Type": "application/json" },
+        const result = await response.json();
+        console.log(result);
+
+        Swal.fire("Results:", `${result}`);
       });
-
-      const result = await response.json();
-      console.log(result)
-      
-      Swal.fire(
-          'Results:',
-          `${result}`,
-      )
-    })
     </script>
   </body>
 </html>
